@@ -89,4 +89,26 @@ router.get("/getRandomMLBHomeRun", (req: Request, res: Response) => {
     });
 });
 
+router.get("/getRandomMLBHomeRuns", (req: Request, res: Response) => {
+  const { length } = req.query;
+  const results: HomeRunEntry[] = [];
+  const filePath = path.join(__dirname, "../data");
+  const files = fs.readdirSync(filePath);
+  const randomFile = files[Math.floor(Math.random() * files.length)];
+  const randomFilePath = path.join(filePath, randomFile);
+  const entries: HomeRunEntry[] = [];
+  fs.createReadStream(randomFilePath)
+    .pipe(csv())
+    .on("data", (data: HomeRunEntry) => {
+      if (results.length < Number(length || 1)) {
+        results.push(data);
+      }
+    })
+    .on("end", () => {
+      const randomIndex = Math.floor(Math.random() * entries.length);
+      Object.assign(results, entries[randomIndex]);
+      res.json(results);
+    });
+});
+
 export default router;
