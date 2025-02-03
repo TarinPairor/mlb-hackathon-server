@@ -4,6 +4,9 @@ import fs from "fs";
 import path from "path";
 import csv from "csv-parser";
 import { HomeRunEntry } from "../types/types";
+import * as cheerio from "cheerio";
+import axios from "axios";
+import { scrapeMLBNews, scrapeMLBNewsArticle } from "../functions/functions";
 
 dotenv.config();
 
@@ -109,6 +112,57 @@ router.get("/getRandomMLBHomeRuns", (req: Request, res: Response) => {
       Object.assign(results, entries[randomIndex]);
       res.json(results);
     });
+});
+
+// async function loadNewlineDelimitedJson(url: string): Promise<any[]> {
+//   try {
+//     const response = await fetch(url);
+//     if (!response.ok) {
+//       throw new Error(`HTTP error! status: ${response.status}`);
+//     }
+
+//     const text = await response.text();
+//     const data: any[] = [];
+
+//     text.split("\n").forEach((line) => {
+//       try {
+//         data.push(JSON.parse(line));
+//       } catch (error) {
+//         console.error(
+//           `Skipping invalid JSON line: ${line} due to error: ${error}`
+//         );
+//       }
+//     });
+
+//     return data;
+//   } catch (error) {
+//     console.error(`Error downloading data: ${error}`);
+//     return [];
+//   }
+// }
+
+router.get("/scrapeMLBNews", async (req: Request, res: Response) => {
+  try {
+    const articleIds = await scrapeMLBNews();
+    res.json(articleIds);
+  } catch (error: any) {
+    res
+      .status(500)
+      .json({ message: "Error scraping MLB news", error: error.message });
+  }
+});
+
+router.get("/scrapeMLBNewsArticle", async (req: Request, res: Response) => {
+  const { url } = req.query;
+  try {
+    const article = await scrapeMLBNewsArticle(url as string);
+    res.json(article);
+  } catch (error: any) {
+    res.status(500).json({
+      message: "Error scraping MLB news article",
+      error: error.message,
+    });
+  }
 });
 
 export default router;
