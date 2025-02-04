@@ -3,6 +3,7 @@ import express, { Express, Request, Response } from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import apiRouter from "./routes/api";
+import userRouter from "./routes/users";
 
 dotenv.config();
 
@@ -13,6 +14,7 @@ app.use(cors());
 app.use(express.json());
 
 app.use("/api", apiRouter);
+app.use("/api/users", userRouter);
 
 app.get("/", (_: Request, res: Response) => {
   res.send("Express + TypeScript Server");
