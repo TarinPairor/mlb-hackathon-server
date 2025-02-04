@@ -25,4 +25,26 @@ router.post(
   }
 );
 
+router.get(
+  "/getContentLogFromEmail",
+  async (req: Request, res: Response): Promise<void> => {
+    const { email } = req.query;
+    if (!email) {
+      res.status(400).json({ error: "Email is required" });
+      return;
+    }
+    const { data, error } = await supabase
+      .from("mlb_content_log")
+      .select("*")
+      .eq("email", email);
+
+    if (error) {
+      res.status(500).json({ error: error.message });
+      return;
+    }
+
+    res.status(200).json(data);
+  }
+);
+
 export default router;

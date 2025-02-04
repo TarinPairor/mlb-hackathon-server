@@ -31,4 +31,20 @@ router.post("/createContentLog", (req, res) => __awaiter(void 0, void 0, void 0,
     }
     res.status(201).json(data);
 }));
+router.get("/getContentLogFromEmail", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { email } = req.query;
+    if (!email) {
+        res.status(400).json({ error: "Email is required" });
+        return;
+    }
+    const { data, error } = yield supabase
+        .from("mlb_content_log")
+        .select("*")
+        .eq("email", email);
+    if (error) {
+        res.status(500).json({ error: error.message });
+        return;
+    }
+    res.status(200).json(data);
+}));
 exports.default = router;
