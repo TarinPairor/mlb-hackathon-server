@@ -1,18 +1,23 @@
 import * as cheerio from "cheerio";
 import axios from "axios";
 
-export async function scrapeMLBNews(): Promise<string[]> {
+export async function scrapeMLBNews(limit?: number): Promise<string[]> {
   try {
     const response = await axios.get("https://www.mlb.com/news");
     const html = response.data;
     const $ = cheerio.load(html);
     const links: string[] = [];
+    let count = 0;
 
     $("article").each((_, element) => {
+      if (limit && count >= limit) {
+        return;
+      }
       const id = $(element).attr("id");
       if (id) {
         links.push("https://www.mlb.com/news/" + id);
       }
+      count++;
     });
 
     return links;
@@ -26,6 +31,7 @@ type Article = {
   title: string;
   paragraphs: string;
   img: string[] | undefined;
+  url: string;
 };
 
 export async function scrapeMLBNewsArticle(url: string): Promise<Article> {
@@ -34,6 +40,8 @@ export async function scrapeMLBNewsArticle(url: string): Promise<Article> {
     const html = response.data;
     const $ = cheerio.load(html);
     let title: string = $("h1").text();
+    // cut title in halve because it duplicates
+    title = title.slice(0, title.length / 2);
     let paragraphs: string = "";
     $("p").each((_, element) => {
       paragraphs += $(element).text() + " ";
@@ -49,7 +57,13 @@ export async function scrapeMLBNewsArticle(url: string): Promise<Article> {
     //   }
     // });
 
-    return { title, paragraphs, img };
+    return {
+      title,
+      //  paragraphs,
+      paragraphs: "",
+      img,
+      url,
+    };
   } catch (error) {
     console.error(`Error scraping MLB news article: ${error}`);
     return {} as Article;

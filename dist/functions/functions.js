@@ -49,18 +49,23 @@ exports.scrapeMLBNews = scrapeMLBNews;
 exports.scrapeMLBNewsArticle = scrapeMLBNewsArticle;
 const cheerio = __importStar(require("cheerio"));
 const axios_1 = __importDefault(require("axios"));
-function scrapeMLBNews() {
+function scrapeMLBNews(limit) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const response = yield axios_1.default.get("https://www.mlb.com/news");
             const html = response.data;
             const $ = cheerio.load(html);
             const links = [];
+            let count = 0;
             $("article").each((_, element) => {
+                if (limit && count >= limit) {
+                    return;
+                }
                 const id = $(element).attr("id");
                 if (id) {
                     links.push("https://www.mlb.com/news/" + id);
                 }
+                count++;
             });
             return links;
         }
@@ -77,6 +82,8 @@ function scrapeMLBNewsArticle(url) {
             const html = response.data;
             const $ = cheerio.load(html);
             let title = $("h1").text();
+            // cut title in halve because it duplicates
+            title = title.slice(0, title.length / 2);
             let paragraphs = "";
             $("p").each((_, element) => {
                 paragraphs += $(element).text() + " ";
@@ -89,7 +96,13 @@ function scrapeMLBNewsArticle(url) {
             //     img.push(srcset.split(",")[0].split(" ")[0] || "");
             //   }
             // });
-            return { title, paragraphs, img };
+            return {
+                title,
+                //  paragraphs,
+                paragraphs: "",
+                img,
+                url,
+            };
         }
         catch (error) {
             console.error(`Error scraping MLB news article: ${error}`);

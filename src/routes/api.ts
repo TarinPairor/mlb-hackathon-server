@@ -143,7 +143,7 @@ router.get("/getRandomMLBHomeRuns", (req: Request, res: Response) => {
 
 router.get("/scrapeMLBNews", async (req: Request, res: Response) => {
   try {
-    const articleIds = await scrapeMLBNews();
+    const articleIds = await scrapeMLBNews(5);
     res.json(articleIds);
   } catch (error: any) {
     res
@@ -162,6 +162,23 @@ router.get("/scrapeMLBNewsArticle", async (req: Request, res: Response) => {
       message: "Error scraping MLB news article",
       error: error.message,
     });
+  }
+});
+
+router.get("/getArticles", async (req: Request, res: Response) => {
+  try {
+    const { length } = req.query;
+    const urls = await scrapeMLBNews(Number(length) || 5);
+    const articles = await Promise.all(
+      urls.map(async (url) => {
+        return await scrapeMLBNewsArticle(url);
+      })
+    );
+    res.json(articles);
+  } catch (error: any) {
+    res
+      .status(500)
+      .json({ message: "Error scraping MLB news", error: error.message });
   }
 });
 

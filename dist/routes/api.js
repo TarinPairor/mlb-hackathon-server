@@ -134,7 +134,7 @@ router.get("/getRandomMLBHomeRuns", (req, res) => {
 // }
 router.get("/scrapeMLBNews", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const articleIds = yield (0, functions_1.scrapeMLBNews)();
+        const articleIds = yield (0, functions_1.scrapeMLBNews)(5);
         res.json(articleIds);
     }
     catch (error) {
@@ -154,6 +154,21 @@ router.get("/scrapeMLBNewsArticle", (req, res) => __awaiter(void 0, void 0, void
             message: "Error scraping MLB news article",
             error: error.message,
         });
+    }
+}));
+router.get("/getArticles", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { length } = req.query;
+        const articleIds = yield (0, functions_1.scrapeMLBNews)(Number(length) || 5);
+        const articles = yield Promise.all(articleIds.map((url) => __awaiter(void 0, void 0, void 0, function* () {
+            return yield (0, functions_1.scrapeMLBNewsArticle)(url);
+        })));
+        res.json(articles);
+    }
+    catch (error) {
+        res
+            .status(500)
+            .json({ message: "Error scraping MLB news", error: error.message });
     }
 }));
 exports.default = router;
