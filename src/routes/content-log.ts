@@ -10,35 +10,18 @@ const supabaseKey = process.env.SUPABASE_KEY || "";
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 router.post(
-  "/createUser",
+  "/createContentLog",
   async (req: Request, res: Response): Promise<void> => {
-    const { user_name, email, info, elo } = req.body;
+    const { email, watched_for, article_summary, play_id } = req.body;
     const { data, error } = await supabase
-      .from("mlb_user")
-      .insert([{ user_name, email, info, elo }]);
+      .from("mlb_content_log")
+      .insert([{ email, watched_for, article_summary, play_id }]);
 
     if (error) {
       res.status(500).json({ error: error.message });
       return;
     }
     res.status(201).json(data);
-  }
-);
-
-router.get(
-  "/getUserByEmail",
-  async (req: Request, res: Response): Promise<void> => {
-    const { email } = req.query;
-    const { data, error } = await supabase
-      .from("mlb_user")
-      .select("*")
-      .eq("email", email);
-
-    if (error) {
-      res.status(500).json({ error: error.message });
-      return;
-    }
-    res.status(200).json(data);
   }
 );
 

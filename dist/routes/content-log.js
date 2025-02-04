@@ -20,27 +20,15 @@ const router = (0, express_1.Router)();
 const supabaseUrl = process.env.SUPABASE_URL || "";
 const supabaseKey = process.env.SUPABASE_KEY || "";
 const supabase = (0, supabase_js_1.createClient)(supabaseUrl, supabaseKey);
-router.post("/createUser", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { user_name, email, info, elo } = req.body;
+router.post("/createContentLog", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { email, watched_for, article_summary, play_id } = req.body;
     const { data, error } = yield supabase
-        .from("mlb_user")
-        .insert([{ user_name, email, info, elo }]);
+        .from("mlb_content_log")
+        .insert([{ email, watched_for, article_summary, play_id }]);
     if (error) {
         res.status(500).json({ error: error.message });
         return;
     }
     res.status(201).json(data);
-}));
-router.get("/getUserByEmail", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { email } = req.query;
-    const { data, error } = yield supabase
-        .from("mlb_user")
-        .select("*")
-        .eq("email", email);
-    if (error) {
-        res.status(500).json({ error: error.message });
-        return;
-    }
-    res.status(200).json(data);
 }));
 exports.default = router;

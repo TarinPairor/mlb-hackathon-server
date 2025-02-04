@@ -159,8 +159,8 @@ router.get("/scrapeMLBNewsArticle", (req, res) => __awaiter(void 0, void 0, void
 router.get("/getArticles", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { length } = req.query;
-        const articleIds = yield (0, functions_1.scrapeMLBNews)(Number(length) || 5);
-        const articles = yield Promise.all(articleIds.map((url) => __awaiter(void 0, void 0, void 0, function* () {
+        const urls = yield (0, functions_1.scrapeMLBNews)(Number(length) || 5);
+        const articles = yield Promise.all(urls.map((url) => __awaiter(void 0, void 0, void 0, function* () {
             return yield (0, functions_1.scrapeMLBNewsArticle)(url);
         })));
         res.json(articles);
